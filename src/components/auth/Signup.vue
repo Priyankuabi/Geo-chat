@@ -14,6 +14,7 @@
                 <label for="alias">Alias:</label>
                 <input type="text" name="alias" v-model="alias">
             </div>
+            <p class="red-text center" v-if="feedback">{{ feedback }}</p>
             <div class="field center">
                 <button class="btn blue">SignUp</button>
             </div>
@@ -22,18 +23,54 @@
     </div>
 </template>
 <script>
+import slugify from 'slugify'
+import db from '@/firebase/init'
+import firebase from 'firebase'
+
 export default {
     name: 'Signup',
     data(){
         return{
             email: null,
             password: null,
-            alias: null
+            alias: null,
+            feedback: null,
+            slug: null
         }
     },
     methods: {
         signup(){
-            
+            if(this.alias && this.email && this.password){
+                this.slug = slugify(this.alias, {
+                    replacement: '-',
+                    remove: /[$*_+~.()'"!\-:@]/g,
+                    lower: true
+                })
+                let ref = db.collection('users').doc(this.slug)
+                ref.get().then(doc => {
+                    if(doc.exists){
+                        this.feedback = "this alias already exist"
+                    }else{
+                        firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(cred => {
+                            ref.set({
+                                alias:this.alias,
+                                geolocation: null,
+                                user_id : cred.user.uid
+                            })
+                        }).then(() =>{
+                            this.$router.push({ name: 'GMap' })
+                        })
+                        .catch(err => {
+                            console.log(err)
+                            this.feedback = err.message
+                        })
+                        this.feedback = "This alias is free to use"
+                    }
+                })
+                console.log(this.slug)
+            }else{
+                this.feedback = "You must enter all fields"
+            }
         }
     }
 }
@@ -48,6 +85,9 @@ export default {
 }
 .signup .field{
     margin-bottom: 16px;
+}
+.card-panel{
+    border-radius: 15px;
 }
 
 </style>
