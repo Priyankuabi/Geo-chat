@@ -64,10 +64,10 @@ export default {
                             console.log(err)
                             this.feedback = err.message
                         })
-                        this.feedback = "This alias is free to use"
+                        //this.feedback = "This alias is free to use"
                     }
                 })
-                console.log(this.slug)
+                //console.log(this.slug)
             }else{
                 this.feedback = "You must enter all fields"
             }
