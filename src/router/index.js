@@ -9,6 +9,7 @@ import ViewProfile from '@/components/profile/ViewProfile'
 Vue.use(VueRouter)
 
 const router = new VueRouter({
+  mode: 'history',
   routes: [
   {
     path: '/',
